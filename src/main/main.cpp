@@ -2,10 +2,13 @@
 //
 
 #include <iostream>
+#include <windows.h>
 
 #include "opencv2/core.hpp"
 #include "opencv2/highgui.hpp"
 #include "robot.h"
+
+#define sleep Sleep
 
 using namespace std;
 using namespace cv;
@@ -18,7 +21,7 @@ int main()
 
     auto robot = Robot(width, lenght, wheel);
     robot.setSpeed(10);
-    robot.setAngularSpeed(0.1);
+    robot.setAngularSpeed(0.2);
 
     auto white = Scalar(0xFF, 0xFF, 0xFF);
     auto size = Size(1080, 720);
@@ -27,47 +30,90 @@ int main()
     robot.setArea(area);
     robot.setCenter(area);
 
-    while(waitKey(1) != 27)
+    while (waitKey(1) != 27)
     {
-        
         char key = waitKey(1);
 
         auto areaWithRobot = Mat(size, CV_8UC3, white);
 
-        if (key == 'w' || key == 'W')
+        switch (key)
         {
-            robot.move(Direction::FORWARD);
-        }
-
-        if (key == 's' || key == 'S')
-        {
-            robot.move(Direction::BACK);
-        }
-
-        if (key == 'a' || key == 'A')
-        {
-            robot.move(Direction::LEFT);
-        }
-
-        if (key == 'd' || key == 'D')
-        {
-            robot.move(Direction::RIGHT);
-        }
-
-        if (key == '.' || key == '>')
-        {
-            robot.rotate(Rotation::CLOCKWISE);
-        }
-
-        if (key == ',' || key == '<')
-        {
-            robot.rotate(Rotation::COUNTER_CLOCKWISE);
+            case 'w':
+            case 'W':
+            {
+                robot.move(Direction::FORWARD);
+                break;
+            }
+            case 's':
+            case 'S':
+            {
+                robot.move(Direction::BACK);
+                break;
+            }
+            case 'a':
+            case 'A':
+            {
+                robot.move(Direction::LEFT);
+                break;
+            }
+            case 'd':
+            case 'D':
+            {
+                robot.move(Direction::RIGHT);
+                break;
+            }
+            case 'q':
+            case 'Q':
+            {
+                robot.move(Direction::FORWARD);
+                robot.move(Direction::LEFT);
+                break;
+            }
+            case 'e':
+            case 'E':
+            {
+                robot.move(Direction::FORWARD);
+                robot.move(Direction::RIGHT);
+                break;
+            }
+            case 'z':
+            case 'Z':
+            {
+                robot.move(Direction::BACK);
+                robot.move(Direction::LEFT);
+                break;
+            }
+            case 'x':
+            case 'X':
+            {
+                robot.move(Direction::BACK);
+                robot.move(Direction::RIGHT);
+                break;
+            }
+            case '.':
+            case '>':
+            {
+                robot.rotate(Rotation::CLOCKWISE);
+                break;
+            }
+            case ',':
+            case '<':
+            {
+                robot.rotate(Rotation::COUNTER_CLOCKWISE);
+                break;
+            }
+            default:
+            {
+                break;
+            }
         }
 
         robot.draw(area, areaWithRobot);
 
         imshow("Area", areaWithRobot);
         area = areaWithRobot;
+
+        //sleep(50);
     }
 
     return 0;

@@ -91,7 +91,7 @@ int32_t Robot::move(Direction direction)
 		case Direction::LEFT:
 		{
 			m_center.y -= m_speed * sinf(m_angle);
-			m_center.x -= m_speed + cosf(m_angle);
+			m_center.x -= m_speed * cosf(m_angle);
 			break;
 		}
 		case Direction::RIGHT:
