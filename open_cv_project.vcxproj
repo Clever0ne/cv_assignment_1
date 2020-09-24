@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="robot.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\robot.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="robot.h" />
+    <ClInclude Include="src\robot.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
