@@ -7,6 +7,7 @@
 #include "opencv2/core.hpp"
 #include "opencv2/highgui.hpp"
 #include "robot.h"
+#include "war_robot.h"
 
 #define sleep Sleep
 
@@ -19,9 +20,11 @@ int main()
     float lenght = 120;
     Wheel wheel = {20, 80};
 
-    auto robot = Robot(width, lenght, wheel);
+    auto robot = WarRobot(width, lenght, wheel);
     robot.setSpeed(10);
-    robot.setAngularSpeed(0.2);
+    robot.setAngularSpeed(0.1);
+    robot.combatModule().setAngularSpeed(0.2);
+    cout << robot.combatModule().angularSpeed() << endl;
 
     auto white = Scalar(0xFF, 0xFF, 0xFF);
     auto size = Size(1080, 720);
@@ -65,29 +68,25 @@ int main()
             case 'q':
             case 'Q':
             {
-                robot.move(Direction::FORWARD);
-                robot.move(Direction::LEFT);
+                robot.go(Direction::FORWARD, Rotation::COUNTER_CLOCKWISE);
                 break;
             }
             case 'e':
             case 'E':
             {
-                robot.move(Direction::FORWARD);
-                robot.move(Direction::RIGHT);
+                robot.go(Direction::FORWARD, Rotation::CLOCKWISE);
                 break;
             }
             case 'z':
             case 'Z':
             {
-                robot.move(Direction::BACK);
-                robot.move(Direction::LEFT);
+                robot.go(Direction::BACK, Rotation::COUNTER_CLOCKWISE);
                 break;
             }
             case 'x':
             case 'X':
             {
-                robot.move(Direction::BACK);
-                robot.move(Direction::RIGHT);
+                robot.go(Direction::BACK, Rotation::CLOCKWISE);
                 break;
             }
             case '.':
@@ -102,13 +101,25 @@ int main()
                 robot.rotate(Rotation::COUNTER_CLOCKWISE);
                 break;
             }
+            case ']':
+            case '}':
+            {
+                robot.combatModule().rotate(Rotation::CLOCKWISE);
+                break;
+            }
+            case '[':
+            case '{':
+            {
+                robot.combatModule().rotate(Rotation::COUNTER_CLOCKWISE);
+                break;
+            }
             default:
             {
                 break;
             }
         }
 
-        robot.draw(area, areaWithRobot);
+        robot.draw(areaWithRobot);
 
         imshow("Area", areaWithRobot);
         area = areaWithRobot;

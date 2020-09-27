@@ -19,11 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\main\combat_module.cpp" />
     <ClCompile Include="src\main\main.cpp" />
     <ClCompile Include="src\main\robot.cpp" />
+    <ClCompile Include="src\main\war_robot.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\main\combat_module.h" />
     <ClInclude Include="src\main\robot.h" />
+    <ClInclude Include="src\main\war_robot.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

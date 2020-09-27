@@ -3,15 +3,28 @@
 
 using namespace cv;
 
-Robot::Robot(float width, float length, Wheel wheel, float speed, float angularSpeed) :
+Robot::Robot(
+	const float width, 
+	const float length, 
+	const Wheel wheel, 
+	const cv::Point2f center, 
+	const float angle, 
+	const float speed, const float angularSpeed
+) :
 	m_width(width),
 	m_length(length),
 	m_wheel(wheel),
+	m_center(center),
+	m_angle(angle),
 	m_speed(speed),
-	m_angularSpeed(speed),
-	m_angle(0)
+	m_angularSpeed(speed)
 {
-
+	auto white = Scalar(0xFF, 0xFF, 0xFF);
+	auto size = Size(1080, 720);
+	auto area = Mat(size, CV_8UC3, white);
+	
+	setArea(area);
+	setCenter(area);
 }
 
 void Robot::setSpeed(const float speed)
@@ -19,7 +32,7 @@ void Robot::setSpeed(const float speed)
 	m_speed = speed;
 }
 
-float Robot::getSpeed() const
+float Robot::speed() const
 {
 	return m_speed;
 }
@@ -29,7 +42,7 @@ void Robot::setAngularSpeed(const float angularSpeed)
 	m_angularSpeed = angularSpeed;
 }
 
-float Robot::getAngularSpeed() const
+float Robot::angularSpeed() const
 {
 	return m_angularSpeed;
 }
@@ -140,16 +153,11 @@ int32_t Robot::go(Direction direction, Rotation rotation)
 	return 0;
 }
 
-int32_t Robot::draw(cv::Mat& inputImage, cv::Mat& outputImage)
+int32_t Robot::draw(cv::Mat &image)
 {
-	if (inputImage.empty() == true)
+	if (image.cols != m_area.width || image.rows != m_area.height)
 	{
 		return -1;
-	}
-
-	if (inputImage.cols != m_area.width || inputImage.rows != m_area.height)
-	{
-		return -2;
 	}
 
 	auto leftHigh = Point2f();
@@ -170,10 +178,35 @@ int32_t Robot::draw(cv::Mat& inputImage, cv::Mat& outputImage)
 
 	auto black = Scalar(0x00, 0x00, 0x00);
 
-	line(outputImage, leftHigh, leftLow, black);
-	line(outputImage, rightHigh, rightLow, black);
-	line(outputImage, leftHigh, rightHigh, black);
-	line(outputImage, leftLow, rightLow, black);
+	line(image, leftHigh, leftLow, black);
+	line(image, rightHigh, rightLow, black);
+	line(image, leftHigh, rightHigh, black);
+	line(image, leftLow, rightLow, black);
 
 	return 0;
+}
+
+float Robot::angle() const
+{
+	return m_angle;
+}
+
+float Robot::width() const
+{
+	return m_width;
+}
+
+float Robot::length() const
+{
+	return m_length;
+}
+
+Point2f Robot::center() const
+{
+	return m_center;
+}
+
+Size2i Robot::area() const
+{
+	return m_area;
 }

@@ -26,28 +26,42 @@ struct Wheel
 class Robot
 {
 public:
-	Robot() = default;
-	Robot(float width, float lenght, Wheel wheel, float speed = 0, float angularSpeed = 0);
+	Robot(
+		const float width = 60,
+		const float length = 120,
+        const Wheel wheel = { 20, 80 }, 
+		const cv::Point2f center = cv::Point2f(0, 0),
+		const float angle = 0, 
+		const float speed = 0, 
+		const float angularSpeed = 0
+	);
 	~Robot() = default;
 
 	void setSpeed(const float speed);
-	float getSpeed() const;
+	float speed() const;
 
 	void setAngularSpeed(const float speed);
-	float getAngularSpeed() const;
+	float angularSpeed() const;
 
 	void setArea(cv::Size2i area);
 	int32_t setArea(cv::Mat image);
+	cv::Size2i area() const;
 
 	int32_t setCenter(float centerX, float centerY);
 	int32_t setCenter(cv::Mat image);
 
-	int32_t draw(cv::Mat& inputImage, cv::Mat& outputImage);
+	virtual int32_t draw(cv::Mat& image);
 
 	int32_t move(Direction direction);
 	int32_t rotate(Rotation rotation);
 
 	int32_t go(Direction direction, Rotation rotation);
+
+	float angle() const;
+	float width() const;
+	float length() const;
+	cv::Point2f center() const;
+	
 
 private:
 	cv::Point2f m_center;
@@ -59,4 +73,3 @@ private:
 	float m_angularSpeed;
 	cv::Size2i m_area;
 };
-
