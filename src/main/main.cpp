@@ -35,7 +35,7 @@ int main()
 
     while (waitKey(1) != 27)
     {
-        char key = waitKey(1);
+        char key = waitKey(100);
 
         auto areaWithRobot = Mat(size, CV_8UC3, white);
 
@@ -80,13 +80,13 @@ int main()
             case 'z':
             case 'Z':
             {
-                robot.go(Direction::BACK, Rotation::COUNTER_CLOCKWISE);
+                robot.go(Direction::BACK, Rotation::CLOCKWISE);
                 break;
             }
             case 'x':
             case 'X':
             {
-                robot.go(Direction::BACK, Rotation::CLOCKWISE);
+                robot.go(Direction::BACK, Rotation::COUNTER_CLOCKWISE);
                 break;
             }
             case '.':
@@ -124,7 +124,7 @@ int main()
         imshow("Area", areaWithRobot);
         area = areaWithRobot;
 
-        //sleep(50);
+        //cout << key << endl;
     }
 
     return 0;
