@@ -18,13 +18,12 @@ int main()
 {
     float width = 60;
     float lenght = 120;
-    Wheel wheel = {20, 80};
+    Wheel wheel = {10, 40};
 
     auto robot = WarRobot(width, lenght, wheel);
     robot.setSpeed(10);
     robot.setAngularSpeed(0.1);
     robot.combatModule().setAngularSpeed(0.2);
-    cout << robot.combatModule().angularSpeed() << endl;
 
     auto white = Scalar(0xFF, 0xFF, 0xFF);
     auto size = Size(1080, 720);

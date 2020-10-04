@@ -29,7 +29,7 @@ public:
 	Robot(
 		const float width = 60,
 		const float length = 120,
-        const Wheel wheel = { 20, 80 }, 
+        const Wheel wheel = { 10, 40 }, 
 		const cv::Point2f center = cv::Point2f(0, 0),
 		const float angle = 0, 
 		const float speed = 0, 
@@ -49,6 +49,7 @@ public:
 
 	int32_t setCenter(float centerX, float centerY);
 	int32_t setCenter(cv::Mat image);
+	cv::Point2f center() const;
 
 	virtual int32_t draw(cv::Mat& image);
 
@@ -60,8 +61,7 @@ public:
 	float angle() const;
 	float width() const;
 	float length() const;
-	cv::Point2f center() const;
-	
+	Wheel wheel() const;
 
 private:
 	cv::Point2f m_center;

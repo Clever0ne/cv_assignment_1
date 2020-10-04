@@ -53,23 +53,67 @@ int32_t CombatModule::rotate(Rotation rotation)
 	return 0;
 }
 
-vector<cv::Point2f> CombatModule::points()
+vector<cv::Point2f> CombatModule::towerPoints()
 {
+	auto point = [this](const float x, const float y)
+	{
+		auto point = cv::Point2f();
+		point.x = x * cosf(angle()) - y * sinf(angle());
+		point.y = x * sinf(angle()) + y * cosf(angle());
+		return point;
+	};
+
 	vector<Point2f> points =
 	{
-		Point2f(m_center.x + m_width / 2.0 * cosf(m_angle), 
-		        m_center.y + m_width / 2.0 * sinf(m_angle)),
-		Point2f(m_center.x + m_width / 4.0 * cosf(m_angle) - m_length / 2.0 * sinf(m_angle),
-		        m_center.y + m_width / 4.0 * sinf(m_angle) + m_length / 2.0 * cosf(m_angle)),
-		Point2f(m_center.x - m_width / 4.0 * cosf(m_angle) - m_length / 2.0 * sinf(m_angle),
-		        m_center.y - m_width / 4.0 * sinf(m_angle) + m_length / 2.0 * cosf(m_angle)),
-		Point2f(m_center.x - m_width / 2.0 * cosf(m_angle),
-		        m_center.y - m_width / 2.0 * sinf(m_angle)),
-		Point2f(m_center.x - m_width / 4.0 * cosf(m_angle) + m_length / 2.0 * sinf(m_angle),
-		        m_center.y - m_width / 4.0 * sinf(m_angle) - m_length / 2.0 * cosf(m_angle)),
-		Point2f(m_center.x + m_width / 4.0 * cosf(m_angle) + m_length / 2.0 * sinf(m_angle),
-		        m_center.y + m_width / 4.0 * sinf(m_angle) - m_length / 2.0 * cosf(m_angle))
+		point( m_width / 2.0,  0             ),
+		point( m_width / 4.0,  m_length / 2.0),
+		point(-m_width / 4.0,  m_length / 2.0),
+		point(-m_width / 2.0,  0             ),
+		point(-m_width / 4.0, -m_length / 2.0),
+		point( m_width / 4.0, -m_length / 2.0)
 	};
 
 	return points;
 }
+
+vector<cv::Point2f> CombatModule::gunPoints()
+{
+	auto point = [this](const float x, const float y)
+	{
+		auto point = cv::Point2f();
+		point.x = x * cosf(angle()) - (y + length()) * sinf(angle());
+		point.y = x * sinf(angle()) + (y + length()) * cosf(angle());
+		return point;
+	};
+
+	vector<Point2f> points =
+	{
+		point( m_width / 12.0,  m_length / 2.0),
+		point(-m_width / 12.0,  m_length / 2.0),
+		point(-m_width / 12.0, -m_length / 2.0),
+		point( m_width / 12.0, -m_length / 2.0)
+	};
+
+	return points;
+}
+
+cv::Point2f CombatModule::center() const
+{
+	return m_center;
+}
+
+float CombatModule::angle() const
+{
+	return m_angle;
+}
+
+float CombatModule::width() const
+{
+	return m_width;
+}
+
+float CombatModule::length() const
+{
+	return m_length;
+}
+

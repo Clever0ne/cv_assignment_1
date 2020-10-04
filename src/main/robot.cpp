@@ -1,6 +1,7 @@
 #include "robot.h"
 #include "opencv2/imgproc.hpp"
 
+using namespace std;
 using namespace cv;
 
 Robot::Robot(
@@ -64,6 +65,11 @@ int32_t Robot::setArea(Mat image)
 	return 0;
 }
 
+Size2i Robot::area() const
+{
+	return m_area;
+}
+
 int32_t Robot::setCenter(float centerX, float centerY)
 {
 	m_center.x = centerX;
@@ -79,10 +85,15 @@ int32_t Robot::setCenter(cv::Mat image)
 		return -1;
 	}
 
-	m_center.x = (float)image.cols / 2.0;
-	m_center.y = (float)image.rows / 2.0;
+	m_center.x = static_cast<float>(image.cols / 2.0);
+	m_center.y = static_cast<float>(image.rows / 2.0);
 
 	return 0;
+}
+
+Point2f Robot::center() const
+{
+	return m_center;
 }
 
 int32_t Robot::move(Direction direction)
@@ -155,33 +166,67 @@ int32_t Robot::go(Direction direction, Rotation rotation)
 
 int32_t Robot::draw(cv::Mat &image)
 {
-	if (image.cols != m_area.width || image.rows != m_area.height)
+	if (image.empty() == true)
 	{
 		return -1;
 	}
 
-	auto leftHigh = Point2f();
-	leftHigh.x = m_center.x - (m_width / 2.0) * cosf(m_angle) - (m_length / 2.0) * sinf(m_angle);
-	leftHigh.y = m_area.height - (m_center.y - (m_width / 2.0) * sinf(m_angle) + (m_length / 2.0) * cosf(m_angle));
+	if (image.cols != m_area.width || image.rows != m_area.height)
+	{
+		return -2;
+	}
 
-	auto leftLow = Point2f();
-	leftLow.x = m_center.x - (m_width / 2.0) * cosf(m_angle) + (m_length / 2.0) * sinf(m_angle);
-	leftLow.y = m_area.height - (m_center.y - (m_width / 2.0) * sinf(m_angle) - (m_length / 2.0) * cosf(m_angle));
+	auto point = [this](const Point2f poligonCenter, const float x, const float y)
+	{
+		auto point = cv::Point2f();
+		point.x = center().x + (x + poligonCenter.x) * cosf(angle()) - (y + poligonCenter.y) * sinf(angle());
+		point.y = center().y + (x + poligonCenter.x) * sinf(angle()) + (y + poligonCenter.y) * cosf(angle());
 
-	auto rightHigh = Point2f();
-	rightHigh.x = m_center.x + (m_width / 2.0) * cosf(m_angle) - (m_length / 2.0) * sinf(m_angle);
-	rightHigh.y = m_area.height - (m_center.y + (m_width / 2.0) * sinf(m_angle) + (m_length / 2.0) * cosf(m_angle));
+		point.y = static_cast<float>(m_area.height) - point.y;
+		return point;
+	};
 
-	auto rightLow = Point2f();
-	rightLow.x = m_center.x + (m_width / 2.0) * cosf(m_angle) + (m_length / 2.0) * sinf(m_angle);
-	rightLow.y = m_area.height - (m_center.y + (m_width / 2.0) * sinf(m_angle) - (m_length / 2.0) * cosf(m_angle));
+	auto poligon = [](cv::Mat& image, vector<Point2f>& poligon, const Scalar& color)
+	{
+		line(image, poligon.front(), poligon.back(), color);
+		for (int32_t index = 1; index < poligon.size(); index++)
+		{
+			line(image, poligon.at(index - 1), poligon.at(index), color);
+		}
+	};
 
 	auto black = Scalar(0x00, 0x00, 0x00);
 
-	line(image, leftHigh, leftLow, black);
-	line(image, rightHigh, rightLow, black);
-	line(image, leftHigh, rightHigh, black);
-	line(image, leftLow, rightLow, black);
+	vector<Point2f> hull =
+	{
+		point(Point2f(),  m_width / 2.0,  m_length / 2.0),
+		point(Point2f(), -m_width / 2.0,  m_length / 2.0),
+		point(Point2f(), -m_width / 2.0, -m_length / 2.0),
+		point(Point2f(),  m_width / 2.0, -m_length / 2.0)
+	};
+
+	poligon(image, hull, black);
+
+	vector<Point2f> wheelCenter =
+	{
+		Point2f( (m_width / 2.0 + m_wheel.width),  (m_length - m_wheel.diameter) / 2.0),
+		Point2f(-(m_width / 2.0 + m_wheel.width),  (m_length - m_wheel.diameter) / 2.0),
+		Point2f(-(m_width / 2.0 + m_wheel.width), -(m_length - m_wheel.diameter) / 2.0),
+		Point2f( (m_width / 2.0 + m_wheel.width), -(m_length - m_wheel.diameter) / 2.0)
+	};
+		
+	for (auto currentWheelCenter : wheelCenter)
+	{
+		vector<Point2f> currentWheel =
+		{
+			point(currentWheelCenter, -m_wheel.width / 2.0,  m_wheel.diameter / 2.0),
+			point(currentWheelCenter, -m_wheel.width / 2.0, -m_wheel.diameter / 2.0),
+			point(currentWheelCenter,  m_wheel.width / 2.0, -m_wheel.diameter / 2.0),
+			point(currentWheelCenter,  m_wheel.width / 2.0,  m_wheel.diameter / 2.0)
+		};
+
+		poligon(image, currentWheel, black);
+	}
 
 	return 0;
 }
@@ -201,12 +246,7 @@ float Robot::length() const
 	return m_length;
 }
 
-Point2f Robot::center() const
+Wheel Robot::wheel() const
 {
-	return m_center;
-}
-
-Size2i Robot::area() const
-{
-	return m_area;
+	return m_wheel;
 }

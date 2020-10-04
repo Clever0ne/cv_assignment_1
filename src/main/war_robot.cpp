@@ -27,48 +27,87 @@ CombatModule& WarRobot::combatModule(void)
 
 int32_t WarRobot::draw(cv::Mat& image)
 {
-	if (image.cols != area().width || image.rows != area().height)
+	if (image.empty() == true)
 	{
 		return -1;
 	}
 
-	auto leftHigh = Point2f();
-	leftHigh.x = center().x - (width() / 2.0) * cosf(angle()) - (length() / 2.0) * sinf(angle());
-	leftHigh.y = image.rows - (center().y - (width() / 2.0) * sinf(angle()) + (length() / 2.0) * cosf(angle()));
+	if (image.cols != area().width || image.rows != area().height)
+	{
+		return -2;
+	}
 
-	auto leftLow = Point2f();
-	leftLow.x = center().x - (width() / 2.0) * cosf(angle()) + (length() / 2.0) * sinf(angle());
-	leftLow.y = image.rows - (center().y - (width() / 2.0) * sinf(angle()) - (length() / 2.0) * cosf(angle()));
+	auto point = [this](const Point2f poligonCenter, const float x, const float y)
+	{
+		auto point = cv::Point2f();
+		point.x = center().x + (x + poligonCenter.x) * cosf(angle()) - (y + poligonCenter.y) * sinf(angle());
+		point.y = center().y + (x + poligonCenter.x) * sinf(angle()) + (y + poligonCenter.y) * cosf(angle());
 
-	auto rightHigh = Point2f();
-	rightHigh.x = center().x + (width() / 2.0) * cosf(angle()) - (length() / 2.0) * sinf(angle());
-	rightHigh.y = image.rows - (center().y + (width() / 2.0) * sinf(angle()) + (length() / 2.0) * cosf(angle()));
+		point.y = static_cast<float>(area().height) - point.y;
+		return point;
+	};
 
-	auto rightLow = Point2f();
-	rightLow.x = center().x + (width() / 2.0) * cosf(angle()) + (length() / 2.0) * sinf(angle());
-	rightLow.y = image.rows - (center().y + (width() / 2.0) * sinf(angle()) - (length() / 2.0) * cosf(angle()));
+	auto poligon = [](cv::Mat& image, vector<Point2f>& poligon, const Scalar& color)
+	{
+		line(image, poligon.front(), poligon.back(), color);
+		for (int32_t index = 1; index < poligon.size(); index++)
+		{
+			line(image, poligon.at(index - 1), poligon.at(index), color);
+		}
+	};
 
 	auto black = Scalar(0x00, 0x00, 0x00);
 
-	line(image, leftHigh, leftLow, black);
-	line(image, rightHigh, rightLow, black);
-	line(image, leftHigh, rightHigh, black);
-	line(image, leftLow, rightLow, black);
-
-	auto points = m_combatModule.points();
-
-	for (auto &point : points)
+	vector<Point2f> hull =
 	{
-		auto buf = point;
-		point.x = center().x + (buf.x * cosf(angle()) - buf.y * sinf(angle()));
-		point.y = image.rows - (center().y + (buf.x * sinf(angle()) + buf.y * cosf(angle())));
+		point(Point2f(),  width() / 2.0,  length() / 2.0),
+		point(Point2f(), -width() / 2.0,  length() / 2.0),
+		point(Point2f(), -width() / 2.0, -length() / 2.0),
+		point(Point2f(),  width() / 2.0, -length() / 2.0)
+	};
+
+	poligon(image, hull, black);
+
+	vector<Point2f> wheelCenter =
+	{
+		Point2f( (width() / 2.0 + wheel().width),  (length() - wheel().diameter) / 2.0),
+		Point2f(-(width() / 2.0 + wheel().width),  (length() - wheel().diameter) / 2.0),
+		Point2f(-(width() / 2.0 + wheel().width), -(length() - wheel().diameter) / 2.0),
+		Point2f( (width() / 2.0 + wheel().width), -(length() - wheel().diameter) / 2.0)
+	};
+
+	for (auto currentWheelCenter : wheelCenter)
+	{
+		vector<Point2f> currentWheel =
+		{
+			point(currentWheelCenter, -wheel().width / 2.0,  wheel().diameter / 2.0),
+			point(currentWheelCenter, -wheel().width / 2.0, -wheel().diameter / 2.0),
+			point(currentWheelCenter,  wheel().width / 2.0, -wheel().diameter / 2.0),
+			point(currentWheelCenter,  wheel().width / 2.0,  wheel().diameter / 2.0)
+		};
+
+		poligon(image, currentWheel, black);
 	}
 
-	line(image, points.front(), points.back(), black);
-	for (int32_t index = 1; index < points.size(); index++)
+	auto towerPoints = m_combatModule.towerPoints();
+
+	vector<Point2f> tower;
+	for (auto currentPoint : towerPoints)
 	{
-		line(image, points.at(index - 1), points.at(index), black);
+		tower.push_back(point(combatModule().center(), currentPoint.x, currentPoint.y));
 	}
+
+	poligon(image, tower, black);
+
+	auto gunPoints = m_combatModule.gunPoints();
+
+	vector<Point2f> gun;
+	for (auto currentPoint : gunPoints)
+	{
+		gun.push_back(point(combatModule().center(), currentPoint.x, currentPoint.y));
+	}
+
+	poligon(image, gun, black);
 
 	return 0;
 }

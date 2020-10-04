@@ -15,10 +15,16 @@ public:
 
 	int32_t rotate(Rotation rotation);
 
-	std::vector<cv::Point2f> points();
+	std::vector<cv::Point2f> towerPoints();
+	std::vector<cv::Point2f> gunPoints();
 
 	void setAngularSpeed(const float speed);
 	float angularSpeed() const;
+
+	cv::Point2f center() const;
+	float angle() const;
+	float width() const;
+	float length() const;
 
 private:
 	cv::Point2f m_center;
