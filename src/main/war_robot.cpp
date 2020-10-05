@@ -43,7 +43,7 @@ int32_t WarRobot::draw(cv::Mat& image)
 		point.x = center().x + (x + poligonCenter.x) * cosf(angle()) - (y + poligonCenter.y) * sinf(angle());
 		point.y = center().y + (x + poligonCenter.x) * sinf(angle()) + (y + poligonCenter.y) * cosf(angle());
 
-		point.y = static_cast<float>(area().height) - point.y;
+		point.y = static_cast<float>(area().height) - 1.0 - point.y;
 		return point;
 	};
 
@@ -60,30 +60,30 @@ int32_t WarRobot::draw(cv::Mat& image)
 
 	vector<Point2f> hull =
 	{
-		point(Point2f(),  width() / 2.0,  length() / 2.0),
-		point(Point2f(), -width() / 2.0,  length() / 2.0),
-		point(Point2f(), -width() / 2.0, -length() / 2.0),
-		point(Point2f(),  width() / 2.0, -length() / 2.0)
+		point(Point2f(),  length() / 2.0,  width() / 2.0),
+		point(Point2f(), -length() / 2.0,  width() / 2.0),
+		point(Point2f(), -length() / 2.0, -width() / 2.0),
+		point(Point2f(),  length() / 2.0, -width() / 2.0)
 	};
 
 	poligon(image, hull, black);
 
 	vector<Point2f> wheelCenter =
 	{
-		Point2f( (width() / 2.0 + wheel().width),  (length() - wheel().diameter) / 2.0),
-		Point2f(-(width() / 2.0 + wheel().width),  (length() - wheel().diameter) / 2.0),
-		Point2f(-(width() / 2.0 + wheel().width), -(length() - wheel().diameter) / 2.0),
-		Point2f( (width() / 2.0 + wheel().width), -(length() - wheel().diameter) / 2.0)
+		Point2f( (length() - wheel().diameter) / 2.0,  (width() / 2.0 + wheel().width)),
+		Point2f(-(length() - wheel().diameter) / 2.0,  (width() / 2.0 + wheel().width)),
+		Point2f(-(length() - wheel().diameter) / 2.0, -(width() / 2.0 + wheel().width)),
+		Point2f( (length() - wheel().diameter) / 2.0, -(width() / 2.0 + wheel().width))
 	};
 
 	for (auto currentWheelCenter : wheelCenter)
 	{
 		vector<Point2f> currentWheel =
 		{
-			point(currentWheelCenter, -wheel().width / 2.0,  wheel().diameter / 2.0),
-			point(currentWheelCenter, -wheel().width / 2.0, -wheel().diameter / 2.0),
-			point(currentWheelCenter,  wheel().width / 2.0, -wheel().diameter / 2.0),
-			point(currentWheelCenter,  wheel().width / 2.0,  wheel().diameter / 2.0)
+			point(currentWheelCenter, -wheel().diameter / 2.0,  wheel().width / 2.0),
+			point(currentWheelCenter, -wheel().diameter / 2.0, -wheel().width / 2.0),
+			point(currentWheelCenter,  wheel().diameter / 2.0, -wheel().width / 2.0),
+			point(currentWheelCenter,  wheel().diameter / 2.0,  wheel().width / 2.0)
 		};
 
 		poligon(image, currentWheel, black);
@@ -110,4 +110,34 @@ int32_t WarRobot::draw(cv::Mat& image)
 	poligon(image, gun, black);
 
 	return 0;
+}
+
+vector<Point2f> WarRobot::boundaryPoints()
+{
+	auto point = [this](const float x, const float y)
+	{
+		auto point = cv::Point2f();
+		point.x = center().x + x * cosf(angle()) - y * sinf(angle());
+		point.y = center().y + x * sinf(angle()) + y * cosf(angle());
+
+		return point;
+	};
+
+	vector<Point2f> points =
+	{
+		point( length() / 2.0,  (width() + 3.0 * wheel().width) / 2.0),
+		point(-length() / 2.0,  (width() + 3.0 * wheel().width) / 2.0),
+		point(-length() / 2.0, -(width() + 3.0 * wheel().width) / 2.0),
+		point( length() / 2.0, -(width() + 3.0 * wheel().width) / 2.0),
+	};
+
+	auto gunPoints = m_combatModule.gunPoints();
+	for (auto& currentPoint : gunPoints)
+	{
+		currentPoint = point(combatModule().center().x + currentPoint.x, 
+			                 combatModule().center().y + currentPoint.y);
+	}
+	points.insert(points.end(), gunPoints.begin(), gunPoints.end());
+
+	return points;
 }

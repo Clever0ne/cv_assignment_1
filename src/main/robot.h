@@ -1,13 +1,16 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "opencv2/core.hpp"
 #include "opencv2/highgui.hpp"
 
 enum class Direction
 {
 	FORWARD,
-	BACK,
 	LEFT,
+	BACK,
 	RIGHT
 };
 
@@ -15,6 +18,14 @@ enum class Rotation
 {
 	CLOCKWISE,
 	COUNTER_CLOCKWISE
+};
+
+enum class Quadrant
+{
+	QUADRANT_I,
+	QUADRANT_II,
+	QUADRANT_III,
+	QUADRANT_IV
 };
 
 struct Wheel
@@ -31,7 +42,7 @@ public:
 		const float length = 120,
         const Wheel wheel = { 10, 40 }, 
 		const cv::Point2f center = cv::Point2f(0, 0),
-		const float angle = 0, 
+		const float angle = M_PI_2, 
 		const float speed = 0, 
 		const float angularSpeed = 0
 	);
@@ -64,6 +75,10 @@ public:
 	Wheel wheel() const;
 
 private:
+	float calculateDisplacement(Direction direction);
+	float calculateAngularDisplacement(Rotation rotation);
+	virtual std::vector<cv::Point2f> boundaryPoints();
+
 	cv::Point2f m_center;
 	float m_angle;
 	const float m_width;
@@ -72,4 +87,5 @@ private:
 	float m_speed;
 	float m_angularSpeed;
 	cv::Size2i m_area;
+	std::vector<cv::Point2f> m_boundaryPoints;
 };

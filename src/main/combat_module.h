@@ -21,12 +21,18 @@ public:
 	void setAngularSpeed(const float speed);
 	float angularSpeed() const;
 
+	void setCenter(const cv::Point2f center);
 	cv::Point2f center() const;
+
+	void setAngle(const float angle);
 	float angle() const;
+
 	float width() const;
 	float length() const;
 
 private:
+
+
 	cv::Point2f m_center;
 	const float m_width;
 	const float m_length;

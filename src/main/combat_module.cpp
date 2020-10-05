@@ -65,12 +65,12 @@ vector<cv::Point2f> CombatModule::towerPoints()
 
 	vector<Point2f> points =
 	{
-		point( m_width / 2.0,  0             ),
-		point( m_width / 4.0,  m_length / 2.0),
-		point(-m_width / 4.0,  m_length / 2.0),
-		point(-m_width / 2.0,  0             ),
-		point(-m_width / 4.0, -m_length / 2.0),
-		point( m_width / 4.0, -m_length / 2.0)
+		point( m_length / 2.0,  m_width / 4.0),
+		point( 0             ,  m_width / 2.0),
+		point(-m_length / 2.0,  m_width / 4.0),
+		point(-m_length / 2.0, -m_width / 4.0),
+		point( 0             , -m_width / 2.0),	
+		point( m_length / 2.0, -m_width / 4.0)
 	};
 
 	return points;
@@ -81,25 +81,35 @@ vector<cv::Point2f> CombatModule::gunPoints()
 	auto point = [this](const float x, const float y)
 	{
 		auto point = cv::Point2f();
-		point.x = x * cosf(angle()) - (y + length()) * sinf(angle());
-		point.y = x * sinf(angle()) + (y + length()) * cosf(angle());
+		point.x = (x + length()) * cosf(angle()) - y * sinf(angle());
+		point.y = (x + length()) * sinf(angle()) + y * cosf(angle());
 		return point;
 	};
 
 	vector<Point2f> points =
 	{
-		point( m_width / 12.0,  m_length / 2.0),
-		point(-m_width / 12.0,  m_length / 2.0),
-		point(-m_width / 12.0, -m_length / 2.0),
-		point( m_width / 12.0, -m_length / 2.0)
+		point( m_length / 2.0,  m_width / 12.0),
+		point(-m_length / 2.0,  m_width / 12.0),
+		point(-m_length / 2.0, -m_width / 12.0),
+		point( m_length / 2.0, -m_width / 12.0)
 	};
 
 	return points;
 }
 
+void CombatModule::setCenter(const cv::Point2f center)
+{
+	m_center = center;
+}
+
 cv::Point2f CombatModule::center() const
 {
 	return m_center;
+}
+
+void CombatModule::setAngle(const float angle)
+{
+	m_angle = angle;
 }
 
 float CombatModule::angle() const

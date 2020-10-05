@@ -12,7 +12,7 @@ public:
 		const Wheel wheel = { 20, 80 },
 		const CombatModule combatModule = CombatModule(),
 		const cv::Point2f center = cv::Point2f(0, 0),
-		const float angle = 0, 
+		const float angle = M_PI_2, 
 		const float speed = 0, 
 		const float angularSpeed = 0
 	);
@@ -23,5 +23,7 @@ public:
 	int32_t draw(cv::Mat& image);
 
 private:
+	std::vector<cv::Point2f> boundaryPoints();
+
 	CombatModule m_combatModule;
 };
