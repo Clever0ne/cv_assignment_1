@@ -17,10 +17,10 @@ int main()
     float lenght = 120;
     Wheel wheel = {10, 40};
 
-    auto robot = WarRobot(width, lenght, wheel);
-    robot.setSpeed(10.0);
-    robot.setAngularSpeed(0.1);
-    robot.combatModule().setAngularSpeed(0.2);
+    auto robot = WarRobot(width, lenght, wheel, CombatModule(40, 60, Point(10, 5)));
+    robot.setSpeed(5.0f);
+    robot.setAngularSpeed(0.1f);
+    robot.combatModule().setAngularSpeed(0.2f);
 
     auto white = Scalar(0xFF, 0xFF, 0xFF);
     auto size = Size(1080, 720);
@@ -92,7 +92,7 @@ int main()
 
         robot.draw(areaWithRobot);
 
-        imshow("Area", areaWithRobot);
+        imshow("War Robot", areaWithRobot);
         area = areaWithRobot;
 
         //cout << key << endl;

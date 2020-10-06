@@ -22,8 +22,6 @@ Robot::Robot(
 	m_speed(speed),
 	m_angularSpeed(speed)
 {
-	
-
 	auto white = Scalar(0xFF, 0xFF, 0xFF);
 	auto size = Size(1080, 720);
 	auto area = Mat(size, CV_8UC3, white);
@@ -68,6 +66,15 @@ int32_t Robot::setArea(Mat image)
 	m_area.width = image.cols;
 	m_area.height = image.rows;
 
+	Border border =
+	{
+		static_cast<float>(area().width) - 1.0f,
+		static_cast<float>(area().height) - 1.0f,
+		0.0,
+		0.0
+	};
+	setBorder(border);
+
 	return 0;
 }
 
@@ -100,6 +107,16 @@ int32_t Robot::setCenter(cv::Mat image)
 Point2f Robot::center() const
 {
 	return m_center;
+}
+
+void Robot::setBorder(const Border border)
+{
+	m_border = border;
+}
+
+Border Robot::border() const
+{
+	return m_border;
 }
 
 int32_t Robot::move(Direction direction)
@@ -190,7 +207,7 @@ int32_t Robot::draw(cv::Mat &image)
 		point.x = center().x + (x + poligonCenter.x) * cosf(angle()) - (y + poligonCenter.y) * sinf(angle());
 		point.y = center().y + (x + poligonCenter.x) * sinf(angle()) + (y + poligonCenter.y) * cosf(angle());
 
-		point.y = static_cast<float>(m_area.height) - 1.0 - point.y;
+		point.y = static_cast<float>(m_area.height) - 1.0f - point.y;
 		return point;
 	};
 
@@ -207,30 +224,30 @@ int32_t Robot::draw(cv::Mat &image)
 
 	vector<Point2f> hull =
 	{
-		point(Point2f(),  m_length / 2.0,  m_width / 2.0),
-		point(Point2f(), -m_length / 2.0,  m_width / 2.0),
-		point(Point2f(), -m_length / 2.0, -m_width / 2.0),
-		point(Point2f(),  m_length / 2.0, -m_width / 2.0)
+		point(Point2f(),  m_length / 2.0f,  m_width / 2.0f),
+		point(Point2f(), -m_length / 2.0f,  m_width / 2.0f),
+		point(Point2f(), -m_length / 2.0f, -m_width / 2.0f),
+		point(Point2f(),  m_length / 2.0f, -m_width / 2.0f)
 	};
 
 	poligon(image, hull, black);
 
 	vector<Point2f> wheelCenter =
 	{
-		Point2f( (m_length - m_wheel.diameter) / 2.0,  (m_width / 2.0 + m_wheel.width)),
-		Point2f(-(m_length - m_wheel.diameter) / 2.0,  (m_width / 2.0 + m_wheel.width)),
-		Point2f(-(m_length - m_wheel.diameter) / 2.0, -(m_width / 2.0 + m_wheel.width)),
-		Point2f( (m_length - m_wheel.diameter) / 2.0, -(m_width / 2.0 + m_wheel.width))
+		Point2f( (m_length - m_wheel.diameter) / 2.0f,  (m_width / 2.0f + m_wheel.width)),
+		Point2f(-(m_length - m_wheel.diameter) / 2.0f,  (m_width / 2.0f + m_wheel.width)),
+		Point2f(-(m_length - m_wheel.diameter) / 2.0f, -(m_width / 2.0f + m_wheel.width)),
+		Point2f( (m_length - m_wheel.diameter) / 2.0f, -(m_width / 2.0f + m_wheel.width))
 	};
 		
 	for (auto currentWheelCenter : wheelCenter)
 	{
 		vector<Point2f> currentWheel =
 		{
-			point(currentWheelCenter, -m_wheel.diameter / 2.0,  m_wheel.width / 2.0),
-			point(currentWheelCenter, -m_wheel.diameter / 2.0, -m_wheel.width / 2.0),
-			point(currentWheelCenter,  m_wheel.diameter / 2.0, -m_wheel.width / 2.0),
-			point(currentWheelCenter,  m_wheel.diameter / 2.0,  m_wheel.width / 2.0)
+			point(currentWheelCenter, -m_wheel.diameter / 2.0f,  m_wheel.width / 2.0f),
+			point(currentWheelCenter, -m_wheel.diameter / 2.0f, -m_wheel.width / 2.0f),
+			point(currentWheelCenter,  m_wheel.diameter / 2.0f, -m_wheel.width / 2.0f),
+			point(currentWheelCenter,  m_wheel.diameter / 2.0f,  m_wheel.width / 2.0f)
 		};
 
 		poligon(image, currentWheel, black);
@@ -261,30 +278,30 @@ Wheel Robot::wheel() const
 
 float Robot::calculateDisplacement(Direction direction)
 {
-	auto border = [this](const float angle)
+	auto borderPoint = [this](const float angle)
 	{
-		auto border = Point2f();
+		auto borderPoint = Point2f();
 		if (cosf(angle) >= 0.0 && sinf(angle) >= 0.0)
 		{
-			border.x = static_cast<float>(m_area.width) - 1.0;
-			border.y = static_cast<float>(m_area.height) - 1.0;
+			borderPoint.x = border().right;
+			borderPoint.y = border().top;
 		}
 		if (cosf(angle) <  0.0 && sinf(angle) >= 0.0)
 		{
-			border.x = 0.0;
-			border.y = static_cast<float>(m_area.height) - 1.0;
+			borderPoint.x = border().left;
+			borderPoint.y = border().top;
 		}
 		if (cosf(angle) <  0.0 && sinf(angle) <  0.0)
 		{
-			border.x = 0.0;
-			border.y = 0.0;
+			borderPoint.x = border().left;
+			borderPoint.y = border().bottom;
 		}
 		if (cosf(angle) >= 0.0 && sinf(angle) <  0.0)
 		{
-			border.x = static_cast<float>(m_area.width) - 1.0;
-			border.y = 0.0;
+			borderPoint.x = border().right;
+			borderPoint.y = border().bottom;
 		}
-		return border;
+		return borderPoint;
 	};
 
 	float distance = m_speed;
@@ -296,7 +313,7 @@ float Robot::calculateDisplacement(Direction direction)
 
 		if (fabs(cosf(angle)) > ZERO)
 		{
-			realDistance = (border(angle).x - point.x) / cosf(angle);
+			realDistance = (borderPoint(angle).x - point.x) / cosf(angle);
 			if (distance > realDistance)
 			{
 				distance = realDistance;
@@ -305,7 +322,7 @@ float Robot::calculateDisplacement(Direction direction)
 
 		if (fabs(sinf(angle)) > ZERO)
 		{
-			realDistance = (border(angle).y - point.y) / sinf(angle);
+			realDistance = (borderPoint(angle).y - point.y) / sinf(angle);
 			if (distance > realDistance)
 			{
 				distance = realDistance;
@@ -329,13 +346,13 @@ float Robot::calculateAngularDisplacement(Rotation rotation)
 			switch (quadrant)
 			{
 			case Quadrant::QUADRANT_I:
-				return fabs(m_center.x - 0.0f);
+				return fabs(center().x - border().left);
 			case Quadrant::QUADRANT_II:
-				return fabs(m_center.y - 0.0f);
+				return fabs(center().y - border().bottom);
 			case Quadrant::QUADRANT_III:
-				return fabs(m_center.x - (static_cast<float>(m_area.width) - 1.0f));
+				return fabs(center().x - border().right);
 			case Quadrant::QUADRANT_IV:
-				return fabs(m_center.y - (static_cast<float>(m_area.height) - 1.0f));
+				return fabs(center().y - border().top);
 			default:
 				return FLT_MAX;
 			}
@@ -346,9 +363,9 @@ float Robot::calculateAngularDisplacement(Rotation rotation)
 			float realAngle = angle;
 			if (distance(quadrant) < radius)
 			{
-				float alpha = M_PI_2 * static_cast<int32_t>(quadrant);
+				float alpha = static_cast<int32_t>(quadrant) * M_PI_2;
 				float phi = atan2f((point.y - m_center.y) * cosf(alpha) - (point.x - m_center.x) * sinf(alpha),
-					               (point.y - m_center.y) * sinf(alpha) + (point.x - m_center.x) * cosf(alpha));
+								   (point.y - m_center.y) * sinf(alpha) + (point.x - m_center.x) * cosf(alpha));
 				float dPhi = acosf(distance(quadrant) / radius);
 				realAngle = M_PI - dPhi - (static_cast<int32_t>(rotation) * 2 - 1) * phi;
 			}
@@ -381,10 +398,10 @@ vector<Point2f> Robot::boundaryPoints()
 
 	vector<Point2f> points =
 	{
-		point( m_length / 2.0,  (m_width + 3.0 * m_wheel.width) / 2.0),
-		point(-m_length / 2.0,  (m_width + 3.0 * m_wheel.width) / 2.0),
-		point(-m_length / 2.0, -(m_width + 3.0 * m_wheel.width) / 2.0),
-		point( m_length / 2.0, -(m_width + 3.0 * m_wheel.width) / 2.0)
+		point( m_length / 2.0f,  (m_width + 3.0f * m_wheel.width) / 2.0f),
+		point(-m_length / 2.0f,  (m_width + 3.0f * m_wheel.width) / 2.0f),
+		point(-m_length / 2.0f, -(m_width + 3.0f * m_wheel.width) / 2.0f),
+		point( m_length / 2.0f, -(m_width + 3.0f * m_wheel.width) / 2.0f)
 	};
 
 	return points;

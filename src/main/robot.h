@@ -34,6 +34,14 @@ struct Wheel
 	float diameter;
 };
 
+struct Border
+{
+	float right;
+	float top;
+	float left;
+	float bottom;
+};
+
 class Robot
 {
 public:
@@ -62,6 +70,9 @@ public:
 	int32_t setCenter(cv::Mat image);
 	cv::Point2f center() const;
 
+	void setBorder(const Border border);
+	Border border() const;
+
 	virtual int32_t draw(cv::Mat& image);
 
 	int32_t move(Direction direction);
@@ -88,4 +99,5 @@ private:
 	float m_angularSpeed;
 	cv::Size2i m_area;
 	std::vector<cv::Point2f> m_boundaryPoints;
+	Border m_border;
 };
