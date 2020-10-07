@@ -17,7 +17,7 @@ int main()
     float lenght = 120;
     Wheel wheel = {10, 40};
 
-    auto robot = WarRobot(width, lenght, wheel, CombatModule(40, 60, Point(10, 5)));
+    auto robot = WarRobot(width, lenght, wheel);
     robot.setSpeed(5.0f);
     robot.setAngularSpeed(0.1f);
     robot.combatModule().setAngularSpeed(0.2f);
@@ -34,68 +34,11 @@ int main()
         char key = waitKey(100);
         auto areaWithRobot = Mat(size, CV_8UC3, white);
 
-        switch (key)
-        {
-        case 'w':
-        case 'W':
-            robot.move(Direction::FORWARD);
-            break;
-        case 's':
-        case 'S':
-            robot.move(Direction::BACK);
-            break;
-        case 'a':
-        case 'A':
-            robot.move(Direction::LEFT);
-            break;
-        case 'd':
-        case 'D':
-            robot.move(Direction::RIGHT);
-            break;
-        case 'q':
-        case 'Q':
-            robot.go(Direction::FORWARD, Rotation::COUNTER_CLOCKWISE);
-            break;
-        case 'e':
-        case 'E':
-            robot.go(Direction::FORWARD, Rotation::CLOCKWISE);
-            break;
-        case 'z':
-        case 'Z':
-            robot.go(Direction::BACK, Rotation::CLOCKWISE);
-            break;
-        case 'x':
-        case 'X':
-            robot.go(Direction::BACK, Rotation::COUNTER_CLOCKWISE);
-            break;
-        case '.':
-        case '>':
-            robot.rotate(Rotation::CLOCKWISE);
-            break;
-        case ',':
-        case '<':
-            robot.rotate(Rotation::COUNTER_CLOCKWISE);
-            break;
-        case ']':
-        case '}':
-        {
-            robot.combatModule().rotate(Rotation::CLOCKWISE);
-            break;
-        }
-        case '[':
-        case '{':
-            robot.combatModule().rotate(Rotation::COUNTER_CLOCKWISE);
-            break;
-        default:
-            break;
-        }
-
+        robot.doSomething(key);
         robot.draw(areaWithRobot);
 
         imshow("War Robot", areaWithRobot);
         area = areaWithRobot;
-
-        //cout << key << endl;
     }
 
     return 0;

@@ -6,6 +6,9 @@
 #include "opencv2/core.hpp"
 #include "opencv2/highgui.hpp"
 
+#define SPEED 5.0
+#define ANGULAR_SPEED 0.1
+
 enum class Direction
 {
 	FORWARD,
@@ -48,11 +51,11 @@ public:
 	Robot(
 		const float width = 60,
 		const float length = 120,
-        const Wheel wheel = { 10, 40 }, 
+		const Wheel wheel = { 10, 40 }, 
 		const cv::Point2f center = cv::Point2f(0, 0),
 		const float angle = M_PI_2, 
-		const float speed = 0, 
-		const float angularSpeed = 0
+		const float speed = SPEED, 
+		const float angularSpeed = ANGULAR_SPEED
 	);
 	~Robot() = default;
 
@@ -80,16 +83,18 @@ public:
 
 	int32_t go(Direction direction, Rotation rotation);
 
+	virtual void doSomething(const char key);
+
 	float angle() const;
 	float width() const;
 	float length() const;
 	Wheel wheel() const;
 
-private:
 	float calculateDisplacement(Direction direction);
 	float calculateAngularDisplacement(Rotation rotation);
 	virtual std::vector<cv::Point2f> boundaryPoints();
 
+private:
 	cv::Point2f m_center;
 	float m_angle;
 	const float m_width;

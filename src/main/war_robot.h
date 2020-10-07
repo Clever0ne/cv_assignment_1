@@ -9,12 +9,12 @@ public:
 	WarRobot(
 		const float width = 60,
 		const float length = 120,
-		const Wheel wheel = { 20, 80 },
+		const Wheel wheel = { 10, 40 },
 		const CombatModule combatModule = CombatModule(),
 		const cv::Point2f center = cv::Point2f(0, 0),
 		const float angle = M_PI_2, 
-		const float speed = 0, 
-		const float angularSpeed = 0
+		const float speed = SPEED, 
+		const float angularSpeed = ANGULAR_SPEED
 	);
 	~WarRobot() = default;
 
@@ -22,8 +22,10 @@ public:
 
 	int32_t draw(cv::Mat& image);
 
-private:
+	void doSomething(const char key);
+
 	std::vector<cv::Point2f> boundaryPoints();
 
+private:
 	CombatModule m_combatModule;
 };

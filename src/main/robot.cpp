@@ -406,3 +406,52 @@ vector<Point2f> Robot::boundaryPoints()
 
 	return points;
 }
+
+void Robot::doSomething(const char key)
+{
+	switch (key)
+	{
+	case 'w':
+	case 'W':
+		move(Direction::FORWARD);
+		break;
+	case 's':
+	case 'S':
+		move(Direction::BACK);
+		break;
+	case 'a':
+	case 'A':
+		move(Direction::LEFT);
+		break;
+	case 'd':
+	case 'D':
+		move(Direction::RIGHT);
+		break;
+	case 'q':
+	case 'Q':
+		go(Direction::FORWARD, Rotation::COUNTER_CLOCKWISE);
+		break;
+	case 'e':
+	case 'E':
+		go(Direction::FORWARD, Rotation::CLOCKWISE);
+		break;
+	case 'z':
+	case 'Z':
+		go(Direction::BACK, Rotation::CLOCKWISE);
+		break;
+	case 'x':
+	case 'X':
+		go(Direction::BACK, Rotation::COUNTER_CLOCKWISE);
+		break;
+	case '.':
+	case '>':
+		rotate(Rotation::CLOCKWISE);
+		break;
+	case ',':
+	case '<':
+		rotate(Rotation::COUNTER_CLOCKWISE);
+		break;
+	default:
+		break;
+	}
+}
